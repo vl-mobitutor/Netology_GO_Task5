@@ -1,7 +1,7 @@
 package transfer
 
 import (
-	"github.com/vl-mobitutor/Netology_GO_Task4/pkg/card"
+	"github.com/vl-mobitutor/Netology_GO_Task5/pkg/card"
 	"testing"
 )
 

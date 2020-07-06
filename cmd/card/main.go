@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/vl-mobitutor/Netology_GO_Task4/pkg/card"
-	"github.com/vl-mobitutor/Netology_GO_Task4/pkg/transfer"
+	"github.com/vl-mobitutor/Netology_GO_Task5/pkg/card"
+	"github.com/vl-mobitutor/Netology_GO_Task5/pkg/transfer"
 )
 
 func main() {

@@ -1,1 +1,1 @@
-module "Lesson5"
+module github.com/vl-mobitutor/Netology_GO_Task5
