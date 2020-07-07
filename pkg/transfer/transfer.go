@@ -17,6 +17,14 @@ type Fee struct {
 	FeeMinimum int64 //Минимальная комиссия - указывается в копейках
 }
 
+
+
+type TransferError string
+
+func (e TransferError) Error() string {
+	return string(e)
+}
+
 //Функция-конструктор сервиса
 func NewService(cardSvc *card.Service, feeSet map[string]Fee) *Service {
 	return &Service {
@@ -39,17 +47,15 @@ func (s *Service) FeeCalculation (operationType string, operationAmount int64) (
 
 
 //Функция перевода по номеру карты
-func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum int64, ok bool) {
+func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum int64, err error) {
 	var myFee int64
 
 	if fromNumber == toNumber { //Проверка на совпадение номеров карты-источника и карты получателя
-		fmt.Println("Номера карты-источника и карты-получателя совпадают!")
-		return amount, false
+		return 0, TransferError("Ошибка: номера карты-источника и карты-получателя совпадают!")
 	}
 
 	if amount <= 0 { //Проверка корректности суммы перевода
-		fmt.Println("Некорректная сумма перевода!")
-		return amount, false
+		return 0, TransferError("Ошибка: сумма перевода отрицательна либо равна нулю!")
 	}
 
 	//Определяем по номерам чьи карты
@@ -63,16 +69,13 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 		totalSum = amount + s.FeeCalculation("in-to-in", amount) //Полная сумма списания с карты-источника
 
 		if totalSum > cardFrom.Balance {
-			fmt.Printf("На карте %s недостаточно средств для перевода! \n", fromNumber)
-			ok = false
-			return
+			return totalSum, TransferError("Ошибка: на карте-источнике недостаточно средтв для перевода!")
 		}
 
 		cardFrom.Balance -= totalSum //Списание с карты источника суммы перевода  + комиссия
 		cardTo.Balance += amount //Зачисление на карту-получатель суммы перевода (без комиссии)
 
 		fmt.Println("Тип перевода - внутрибанковский платеж")
-		ok = true
 	}
 
 
@@ -82,15 +85,11 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 		totalSum = amount + s.FeeCalculation("in-to-out", amount) //Полная сумма списания с карты-источника
 
 		if totalSum > cardFrom.Balance {
-			fmt.Printf("На карте %s недостаточно средств для перевода! \n", fromNumber)
-			ok = false
-			return
+			return totalSum, TransferError("Ошибка: на карте-источнике недостаточно средтв для перевода!")
 		}
 
 		cardFrom.Balance -= totalSum //Списание с карты источника суммы перевода  + комиссия
-
 		fmt.Println("Тип перевода - с карты банка на внешнюю карту")
-		ok = true
 	}
 
 
@@ -103,7 +102,6 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 		cardTo.Balance += amount //Зачисление на карту-получатель суммы перевода (без комиссии)
 
 		fmt.Println("Тип перевода - с внешней карты на карту банка")
-		ok = true
 	}
 
 	//------------------------Блок, если с внешней карты на внешнюю банка---------------------
@@ -112,8 +110,7 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 		totalSum = amount + s.FeeCalculation("out-to-out", amount) //Полная сумма списания с карты-источника
 
 		fmt.Println("Тип перевода - с внешней карты на внешнюю карту")
-		ok = true
 	}
 
-	return totalSum, ok
+	return totalSum, nil
 }

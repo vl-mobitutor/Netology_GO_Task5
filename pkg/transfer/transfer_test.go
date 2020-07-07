@@ -20,11 +20,10 @@ func TestService_Card2Card(t *testing.T) {
 		fields       fields
 		args         args
 		wantTotalSum int64
-		wantOk       bool
+		wantErr      error
 	}{
-
+		//-------------------------Параметры тестовых кейсов-------------------------------------
 		{
-			//-------------------------Параметры тестовых кейсов-------------------------------------
 			name:         "Tecт1 - Карта своего банка -> Карта своего банка (денег достаточно)",
 			fields:       fields{
 				CardSvc: &card.Service{
@@ -97,7 +96,7 @@ func TestService_Card2Card(t *testing.T) {
 				amount: 5000_00,
 			},
 			wantTotalSum: 5000_00,
-			wantOk:       true,
+			wantErr:       nil,
 		},
 
 		{
@@ -174,7 +173,7 @@ func TestService_Card2Card(t *testing.T) {
 				amount: 20_000_00,
 			},
 			wantTotalSum: 20_000_00,
-			wantOk:       false,
+			wantErr:      TransferError("Ошибка: на карте-источнике недостаточно средтв для перевода!"),
 		},
 
 		{
@@ -251,7 +250,7 @@ func TestService_Card2Card(t *testing.T) {
 				amount: 5_000_00,
 			},
 			wantTotalSum: 5_025_00,
-			wantOk:       true,
+			wantErr:       nil,
 		},
 
 		{
@@ -328,7 +327,7 @@ func TestService_Card2Card(t *testing.T) {
 				amount: 20_000_00,
 			},
 			wantTotalSum: 20_100_00,
-			wantOk:       false,
+			wantErr:       TransferError("Ошибка: на карте-источнике недостаточно средтв для перевода!"),
 		},
 
 		{
@@ -405,7 +404,7 @@ func TestService_Card2Card(t *testing.T) {
 				amount: 5_000_00,
 			},
 			wantTotalSum: 5_000_00,
-			wantOk:       true,
+			wantErr:       nil,
 		},
 
 		{
@@ -482,23 +481,25 @@ func TestService_Card2Card(t *testing.T) {
 				amount: 5_000_00,
 			},
 			wantTotalSum: 5_075_00,
-			wantOk:       true,
+			wantErr:       nil,
 		},
+
 	}
 
 	for _, tt := range tests {
-
-		s := &Service{
-			CardSvc: tt.fields.CardSvc,
-			Fees:    tt.fields.Fees,
-		}
-		gotTotalSum, gotOk := s.Card2Card(tt.args.fromNumber, tt.args.toNumber, tt.args.amount)
-		if gotTotalSum != tt.wantTotalSum {
-			t.Errorf("Card2Card() gotTotalSum = %v, want %v", gotTotalSum, tt.wantTotalSum)
-		}
-		if gotOk != tt.wantOk {
-			t.Errorf("Card2Card() gotOk = %v, want %v", gotOk, tt.wantOk)
-		}
-
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Service{
+				CardSvc: tt.fields.CardSvc,
+				Fees:    tt.fields.Fees,
+			}
+			gotTotalSum, err := s.Card2Card(tt.args.fromNumber, tt.args.toNumber, tt.args.amount)
+			if (err != nil) && (err!= tt.wantErr) {
+				t.Errorf("Card2Card() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if gotTotalSum != tt.wantTotalSum {
+				t.Errorf("Card2Card() gotTotalSum = %v, want %v", gotTotalSum, tt.wantTotalSum)
+			}
+		})
 	}
 }

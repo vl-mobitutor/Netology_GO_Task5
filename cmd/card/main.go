@@ -86,11 +86,11 @@ func main() {
 
 	//Выполнение перевода
 	fromNumber := "1111 1111 1111 0001" //Протестировать свои карты - меням последнюю цифру от 1 до 5
-	toNumber := "2111 1111 1111 0002"   //Протестировать внешние карты - меняем первые цифры
-	amount := 20000_00
-	totalAmount, transferOk :=trf.Card2Card(fromNumber, toNumber, int64(amount))
+	toNumber := "1111 1111 1111 0001"   //Протестировать внешние карты - меняем первые цифры
+	amount := 20_000_00
+	totalAmount, transferError :=trf.Card2Card(fromNumber, toNumber, int64(amount))
 
-	if transferOk {
+	if transferError == nil {
 		fmt.Printf("Перевод c карты %s успешно выполнен: \n", fromNumber)
 		fmt.Printf("Сумма перевода - %d \n", amount)
 		fmt.Printf("Полная сумма списания с комиссией - %d \n", totalAmount)
@@ -100,7 +100,8 @@ func main() {
 			fmt.Println(*value)
 		}
 	} else {
-		fmt.Printf("Перевод на сумму %d не выполнен!", totalAmount)
+		fmt.Println(transferError)
+		fmt.Println("\nПеревод не выполнен!")
 	}
 
 }
