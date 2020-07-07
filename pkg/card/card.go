@@ -1,5 +1,7 @@
 package card
 
+import "strings"
+
 type Service struct {
 	BankName string
 	Cards []*Card
@@ -34,12 +36,24 @@ func (s *Service) IssueCard(id int64, issuer, currency, number string) *Card {
 }
 
 
+type FindCardError string
+
+func (e FindCardError) Error() string {
+	return string(e)
+}
+
 //Функция поиска карты по номеру в массиве собственных карт банка
-func (s *Service) SearchByNumber (number string) *Card {
+func (s *Service) SearchByNumber (number string) (card *Card, ourCard bool, err error) {
+
+	ourIssuer :="5106 21"
+	if !strings.HasPrefix(number, ourIssuer) {
+		return nil, false, FindCardError("Ошибка: некорректный эмитент!")
+	}
+
 	for _, card := range s.Cards {
 		if card.Number == number {
-			return card
+			return card, true,nil
 		}
 	}
-	return nil
+	return nil, false, nil
 }

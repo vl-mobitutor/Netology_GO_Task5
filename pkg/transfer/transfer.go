@@ -59,12 +59,20 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 	}
 
 	//Определяем по номерам чьи карты
-	cardFrom := s.CardSvc.SearchByNumber(fromNumber)
-	cardTo := s.CardSvc.SearchByNumber(toNumber)
+	cardFrom, ourFrom, errFrom := s.CardSvc.SearchByNumber(fromNumber)
+	cardTo, ourTo, errTo := s.CardSvc.SearchByNumber(toNumber)
 
+	if errFrom != nil {
+
+		return 0, TransferError("Ошибка по карте-источнику - " + errFrom.Error())
+	}
+
+	if errTo != nil {
+		return 0, TransferError("Ошибка по карте-получателю - " + errTo.Error())
+	}
 
 	//-----------------------------Блок, если обе карты "наши"---------------------------------
-	if (cardFrom != nil) && (cardTo != nil) {
+	if (ourFrom == true) && (ourTo == true) {
 
 		totalSum = amount + s.FeeCalculation("in-to-in", amount) //Полная сумма списания с карты-источника
 
@@ -80,7 +88,7 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 
 
 	//-------------------------Блок, если с "нашей" карты на внешнюю карту---------------------
-	if (cardFrom !=nil ) && (cardTo == nil) {
+	if (ourFrom == true ) && (ourTo == false) {
 
 		totalSum = amount + s.FeeCalculation("in-to-out", amount) //Полная сумма списания с карты-источника
 
@@ -94,7 +102,7 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 
 
 	//------------------------Блок, если с внешней карты на карту банка------------------------
-	if (cardFrom == nil) && (cardTo != nil) {
+	if (ourFrom == false) && (ourTo == true) {
 
 		totalSum = amount + s.FeeCalculation("out-to-in", amount) //Полная сумма списания с карты-источника
 
@@ -105,7 +113,7 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 	}
 
 	//------------------------Блок, если с внешней карты на внешнюю банка---------------------
-	if (cardFrom == nil) && (cardTo == nil) {
+	if (ourFrom == false) && (ourTo == false) {
 
 		totalSum = amount + s.FeeCalculation("out-to-out", amount) //Полная сумма списания с карты-источника
 
