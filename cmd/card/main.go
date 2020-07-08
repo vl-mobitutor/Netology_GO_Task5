@@ -14,31 +14,31 @@ func main() {
 			Id: 1,
 			Issuer: "MasterCard",
 			Currency: "RUR",
-			Number: "1111 1111 1111 0001",
+			Number: "5106 2111 1111 0701",
 		},
 		{
 			Id: 2,
 			Issuer: "MasterCard",
 			Currency: "RUR",
-			Number: "1111 1111 1111 0002",
+			Number: "5106 2111 1111 0602",
 		},
 		{
 			Id: 3,
 			Issuer: "MasterCard",
 			Currency: "RUR",
-			Number: "1111 1111 1111 0003",
+			Number: "5106 2111 1111 0503",
 		},
 		{
 			Id: 4,
 			Issuer: "Visa",
 			Currency: "RUR",
-			Number: "1111 1111 1111 0004",
+			Number: "5106 2111 1111 0404",
 		},
 		{
 			Id: 5,
 			Issuer: "Visa",
 			Currency: "RUR",
-			Number: "1111 1111 1111 0005",
+			Number: "5106 2111 1111 0305",
 		},
 	}
 
@@ -85,22 +85,24 @@ func main() {
 	trf := transfer.NewService(svc, feeSet)
 
 	//Выполнение перевода
-	fromNumber := "1111 1111 1111 0001" //Протестировать свои карты - меням последнюю цифру от 1 до 5
-	toNumber := "2111 1111 1111 0002"   //Протестировать внешние карты - меняем первые цифры
-	amount := 20000_00
-	totalAmount, transferOk :=trf.Card2Card(fromNumber, toNumber, int64(amount))
+	fromNumber := "5106 2111 1111 0503" //Протестировать свои карты - меням последнюю цифру от 1 до 5
+	toNumber := "5106 2111 1111 0305"   //Протестировать внешние карты - меняем первые цифры
+	amount := 1_000_00
+	totalAmount, transferError :=trf.Card2Card(fromNumber, toNumber, int64(amount))
 
-	if transferOk {
+	if transferError == nil {
 		fmt.Printf("Перевод c карты %s успешно выполнен: \n", fromNumber)
 		fmt.Printf("Сумма перевода - %d \n", amount)
 		fmt.Printf("Полная сумма списания с комиссией - %d \n", totalAmount)
 		fmt.Println()
-		fmt.Println("-------------------Балансы собственных карт банка после операции перевода------------------------")
+		fmt.Println("-------------------Балансы собственных карт банка после операции перевода--------------------")
 		for _, value := range svc.Cards {
 			fmt.Println(*value)
 		}
 	} else {
-		fmt.Printf("Перевод на сумму %d не выполнен!", totalAmount)
+		fmt.Println(transferError)
+		fmt.Println("\nПеревод не выполнен!")
 	}
+
 
 }

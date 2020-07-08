@@ -20,12 +20,11 @@ func TestService_Card2Card(t *testing.T) {
 		fields       fields
 		args         args
 		wantTotalSum int64
-		wantOk       bool
+		wantErr      error
 	}{
-
+		//-------------------------Параметры тестовых кейсов-------------------------------------
 		{
-			//-------------------------Параметры тестовых кейсов-------------------------------------
-			name:         "Tecт1 - Карта своего банка -> Карта своего банка (денег достаточно)",
+			name:         "Tecт 1 - Карта своего банка -> Карта своего банка (денег достаточно)",
 			fields:       fields{
 				CardSvc: &card.Service{
 					BankName: "Super Bank",
@@ -35,35 +34,35 @@ func TestService_Card2Card(t *testing.T) {
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0001",
+							Number:   "5106 2111 1111 0701",
 						},
 						{
 							Id:       2,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0002",
+							Number:   "5106 2111 1111 0602",
 						},
 						{
 							Id:       3,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0003",
+							Number:   "5106 2111 1111 0503",
 						},
 						{
 							Id:       4,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0004",
+							Number:   "5106 2111 1111 0404",
 						},
 						{
 							Id:       5,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0005",
+							Number:   "5106 2111 1111 0305",
 						},
 					},
 				},
@@ -92,17 +91,17 @@ func TestService_Card2Card(t *testing.T) {
 				},
 			},
 			args:         args{
-				fromNumber: "1111 1111 1111 0001",
-				toNumber: "1111 1111 1111 0002",
+				fromNumber: "5106 2111 1111 0701",
+				toNumber: "5106 2111 1111 0602",
 				amount: 5000_00,
 			},
 			wantTotalSum: 5000_00,
-			wantOk:       true,
+			wantErr:       nil,
 		},
 
 		{
 			//---------------------------------------------------------------------------------------
-			name:         "Tecт2 - Карта своего банка -> Карта своего банка (денег недостаточно)",
+			name:         "Tecт 2 - Карта своего банка -> Карта своего банка (денег недостаточно)",
 			fields:       fields{
 				CardSvc: &card.Service{
 					BankName: "Super Bank",
@@ -112,35 +111,35 @@ func TestService_Card2Card(t *testing.T) {
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0001",
+							Number:   "5106 2111 1111 0701",
 						},
 						{
 							Id:       2,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0002",
+							Number:   "5106 2111 1111 0602",
 						},
 						{
 							Id:       3,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0003",
+							Number:   "5106 2111 1111 0503",
 						},
 						{
 							Id:       4,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0004",
+							Number:   "5106 2111 1111 0404",
 						},
 						{
 							Id:       5,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0005",
+							Number:   "5106 2111 1111 0305",
 						},
 					},
 				},
@@ -169,17 +168,17 @@ func TestService_Card2Card(t *testing.T) {
 				},
 			},
 			args:         args{
-				fromNumber: "1111 1111 1111 0003",
-				toNumber: "1111 1111 1111 0004",
+				fromNumber: "5106 2111 1111 0701",
+				toNumber: "5106 2111 1111 0602",
 				amount: 20_000_00,
 			},
 			wantTotalSum: 20_000_00,
-			wantOk:       false,
+			wantErr:      TransferError("Ошибка: на карте-источнике недостаточно средтв для перевода!"),
 		},
 
 		{
 			//--------------------------------------------------------------------------------------
-			name:         "Tecт3 - Карта своего банка -> Карта чужого банка (денег достаточно)",
+			name:         "Tecт 3 - Карта своего банка -> Карта чужого банка (денег достаточно)",
 			fields:       fields{
 				CardSvc: &card.Service{
 					BankName: "Super Bank",
@@ -189,35 +188,35 @@ func TestService_Card2Card(t *testing.T) {
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0001",
+							Number:   "5106 2111 1111 0701",
 						},
 						{
 							Id:       2,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0002",
+							Number:   "5106 2111 1111 0602",
 						},
 						{
 							Id:       3,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0003",
+							Number:   "5106 2111 1111 0503",
 						},
 						{
 							Id:       4,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0004",
+							Number:   "5106 2111 1111 0404",
 						},
 						{
 							Id:       5,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0005",
+							Number:   "5106 2111 1111 0305",
 						},
 					},
 				},
@@ -246,17 +245,17 @@ func TestService_Card2Card(t *testing.T) {
 				},
 			},
 			args:         args{
-				fromNumber: "1111 1111 1111 0001",
-				toNumber: "2111 1111 1111 0001",
+				fromNumber: "5106 2111 1111 0701",
+				toNumber: "5106 2111 1112 0502",
 				amount: 5_000_00,
 			},
 			wantTotalSum: 5_025_00,
-			wantOk:       true,
+			wantErr:       nil,
 		},
 
 		{
 			//--------------------------------------------------------------------------------------
-			name:         "Tecт4 - Карта своего банка -> Карта чужого банка (денег недостаточно)",
+			name:         "Tecт 4 - Карта своего банка -> Карта чужого банка (денег недостаточно)",
 			fields:       fields{
 				CardSvc: &card.Service{
 					BankName: "Super Bank",
@@ -266,35 +265,35 @@ func TestService_Card2Card(t *testing.T) {
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0001",
+							Number:   "5106 2111 1111 0701",
 						},
 						{
 							Id:       2,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0002",
+							Number:   "5106 2111 1111 0602",
 						},
 						{
 							Id:       3,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0003",
+							Number:   "5106 2111 1111 0503",
 						},
 						{
 							Id:       4,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0004",
+							Number:   "5106 2111 1111 0404",
 						},
 						{
 							Id:       5,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0005",
+							Number:   "5106 2111 1111 0305",
 						},
 					},
 				},
@@ -323,17 +322,17 @@ func TestService_Card2Card(t *testing.T) {
 				},
 			},
 			args:         args{
-				fromNumber: "1111 1111 1111 0001",
-				toNumber: "2111 1111 1111 0001",
+				fromNumber: "5106 2111 1111 0701",
+				toNumber: "5106 2111 1112 0502",
 				amount: 20_000_00,
 			},
 			wantTotalSum: 20_100_00,
-			wantOk:       false,
+			wantErr:       TransferError("Ошибка: на карте-источнике недостаточно средтв для перевода!"),
 		},
 
 		{
 			//--------------------------------------------------------------------------------------
-			name:         "Tecт5 - Карта чужого банка -> Карта своего банка",
+			name:         "Tecт 5 - Карта чужого банка -> Карта своего банка",
 			fields:       fields{
 				CardSvc: &card.Service{
 					BankName: "Super Bank",
@@ -343,35 +342,35 @@ func TestService_Card2Card(t *testing.T) {
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0001",
+							Number:   "5106 2111 1111 0701",
 						},
 						{
 							Id:       2,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0002",
+							Number:   "5106 2111 1111 0602",
 						},
 						{
 							Id:       3,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0003",
+							Number:   "5106 2111 1111 0503",
 						},
 						{
 							Id:       4,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0004",
+							Number:   "5106 2111 1111 0404",
 						},
 						{
 							Id:       5,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0005",
+							Number:   "5106 2111 1111 0305",
 						},
 					},
 				},
@@ -400,17 +399,17 @@ func TestService_Card2Card(t *testing.T) {
 				},
 			},
 			args:         args{
-				fromNumber: "2111 1111 1111 0001",
-				toNumber: "1111 1111 1111 0001",
+				fromNumber: "5106 2111 1112 0502",
+				toNumber: "5106 2111 1111 0701",
 				amount: 5_000_00,
 			},
 			wantTotalSum: 5_000_00,
-			wantOk:       true,
+			wantErr:       nil,
 		},
 
 		{
 			//--------------------------------------------------------------------------------------
-			name:         "Tecт6 - Карта чужого банка -> Карта чужого банка",
+			name:         "Tecт 6 - Карта чужого банка -> Карта чужого банка",
 			fields:       fields{
 				CardSvc: &card.Service{
 					BankName: "Super Bank",
@@ -420,35 +419,35 @@ func TestService_Card2Card(t *testing.T) {
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0001",
+							Number:   "5106 2111 1111 0701",
 						},
 						{
 							Id:       2,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0002",
+							Number:   "5106 2111 1111 0602",
 						},
 						{
 							Id:       3,
 							Issuer:   "MasterCard",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0003",
+							Number:   "5106 2111 1111 0503",
 						},
 						{
 							Id:       4,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0004",
+							Number:   "5106 2111 1111 0404",
 						},
 						{
 							Id:       5,
 							Issuer:   "Visa",
 							Balance: 10000_00,
 							Currency: "RUR",
-							Number:   "1111 1111 1111 0005",
+							Number:   "5106 2111 1111 0305",
 						},
 					},
 				},
@@ -477,28 +476,184 @@ func TestService_Card2Card(t *testing.T) {
 				},
 			},
 			args:         args{
-				fromNumber: "2111 1111 1111 0001",
-				toNumber: "2111 1111 1111 0002",
+				fromNumber: "5106 2111 1112 0601",
+				toNumber: "5106 2111 1112 0502",
 				amount: 5_000_00,
 			},
 			wantTotalSum: 5_075_00,
-			wantOk:       true,
+			wantErr:       nil,
 		},
+
+		{
+			//--------------------------------------------------------------------------------------
+			name:         "Tecт 7 - Некорректный эмитент по карте - источнику",
+			fields:       fields{
+				CardSvc: &card.Service{
+					BankName: "Super Bank",
+					Cards: []*card.Card{
+						{
+							Id:       1,
+							Issuer:   "MasterCard",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0701",
+						},
+						{
+							Id:       2,
+							Issuer:   "MasterCard",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0602",
+						},
+						{
+							Id:       3,
+							Issuer:   "MasterCard",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0503",
+						},
+						{
+							Id:       4,
+							Issuer:   "Visa",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0404",
+						},
+						{
+							Id:       5,
+							Issuer:   "Visa",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0305",
+						},
+					},
+				},
+
+				Fees: map[string]Fee {
+					"in-to-in": {
+						Description: "С карты на карту внутри банка",
+						FeePercentage: 0.0000, //0.00%
+						FeeMinimum: 0, //Минимальная комиссия в копейках
+					},
+					"in-to-out": {
+						Description: "С карты банка на внешнюю карту",
+						FeePercentage: 0.0050, //0.5%
+						FeeMinimum: 10_00, //Минимальная комиссия в копейках
+					},
+					"out-to-in": {
+						Description: "С внешней карты на карту банка",
+						FeePercentage: 0.0000, //0.0%
+						FeeMinimum: 0, //Минимальная комиссия в копейках
+					},
+					"out-to-out": {
+						Description: "С внешней карты на внешнюю карту",
+						FeePercentage: 0.0150, //1.5%
+						FeeMinimum: 30_00, //Минимальная комиссия в копейках
+					},
+				},
+			},
+			args:         args{
+				fromNumber: "5206 2111 1111 0601",
+				toNumber: "5106 2111 1111 0602",
+				amount: 5_000_00,
+			},
+			wantTotalSum: 0,
+			wantErr:      TransferError("Ошибка по карте-источнику - Ошибка: некорректный эмитент!"),
+		},
+
+		{
+			//--------------------------------------------------------------------------------------
+			name:         "Tecт 8 - Некорректный эмитент по карте - получателю",
+			fields:       fields{
+				CardSvc: &card.Service{
+					BankName: "Super Bank",
+					Cards: []*card.Card{
+						{
+							Id:       1,
+							Issuer:   "MasterCard",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0701",
+						},
+						{
+							Id:       2,
+							Issuer:   "MasterCard",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0602",
+						},
+						{
+							Id:       3,
+							Issuer:   "MasterCard",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0503",
+						},
+						{
+							Id:       4,
+							Issuer:   "Visa",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0404",
+						},
+						{
+							Id:       5,
+							Issuer:   "Visa",
+							Balance: 10000_00,
+							Currency: "RUR",
+							Number:   "5106 2111 1111 0305",
+						},
+					},
+				},
+
+				Fees: map[string]Fee {
+					"in-to-in": {
+						Description: "С карты на карту внутри банка",
+						FeePercentage: 0.0000, //0.00%
+						FeeMinimum: 0, //Минимальная комиссия в копейках
+					},
+					"in-to-out": {
+						Description: "С карты банка на внешнюю карту",
+						FeePercentage: 0.0050, //0.5%
+						FeeMinimum: 10_00, //Минимальная комиссия в копейках
+					},
+					"out-to-in": {
+						Description: "С внешней карты на карту банка",
+						FeePercentage: 0.0000, //0.0%
+						FeeMinimum: 0, //Минимальная комиссия в копейках
+					},
+					"out-to-out": {
+						Description: "С внешней карты на внешнюю карту",
+						FeePercentage: 0.0150, //1.5%
+						FeeMinimum: 30_00, //Минимальная комиссия в копейках
+					},
+				},
+			},
+			args:         args{
+				fromNumber: "5106 2111 1111 0701",
+				toNumber: "5206 2111 1111 0502",
+				amount: 5_000_00,
+			},
+			wantTotalSum: 0,
+			wantErr:      TransferError("Ошибка по карте-получателю - Ошибка: некорректный эмитент!"),
+		},
+
 	}
 
 	for _, tt := range tests {
-
-		s := &Service{
-			CardSvc: tt.fields.CardSvc,
-			Fees:    tt.fields.Fees,
-		}
-		gotTotalSum, gotOk := s.Card2Card(tt.args.fromNumber, tt.args.toNumber, tt.args.amount)
-		if gotTotalSum != tt.wantTotalSum {
-			t.Errorf("Card2Card() gotTotalSum = %v, want %v", gotTotalSum, tt.wantTotalSum)
-		}
-		if gotOk != tt.wantOk {
-			t.Errorf("Card2Card() gotOk = %v, want %v", gotOk, tt.wantOk)
-		}
-
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Service{
+				CardSvc: tt.fields.CardSvc,
+				Fees:    tt.fields.Fees,
+			}
+			gotTotalSum, err := s.Card2Card(tt.args.fromNumber, tt.args.toNumber, tt.args.amount)
+			if (err != nil) && (err!= tt.wantErr) {
+				t.Errorf("Card2Card() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if gotTotalSum != tt.wantTotalSum {
+				t.Errorf("Card2Card() gotTotalSum = %v, want %v", gotTotalSum, tt.wantTotalSum)
+			}
+		})
 	}
 }

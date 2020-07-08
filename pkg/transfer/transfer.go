@@ -17,6 +17,14 @@ type Fee struct {
 	FeeMinimum int64 //Минимальная комиссия - указывается в копейках
 }
 
+
+
+type TransferError string
+
+func (e TransferError) Error() string {
+	return string(e)
+}
+
 //Функция-конструктор сервиса
 func NewService(cardSvc *card.Service, feeSet map[string]Fee) *Service {
 	return &Service {
@@ -39,63 +47,70 @@ func (s *Service) FeeCalculation (operationType string, operationAmount int64) (
 
 
 //Функция перевода по номеру карты
-func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum int64, ok bool) {
+func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum int64, err error) {
 	var myFee int64
 
 	if fromNumber == toNumber { //Проверка на совпадение номеров карты-источника и карты получателя
-		fmt.Println("Номера карты-источника и карты-получателя совпадают!")
-		return amount, false
+		return 0, TransferError("Ошибка: номера карты-источника и карты-получателя совпадают!")
 	}
 
 	if amount <= 0 { //Проверка корректности суммы перевода
-		fmt.Println("Некорректная сумма перевода!")
-		return amount, false
+		return 0, TransferError("Ошибка: сумма перевода отрицательна либо равна нулю!")
+	}
+
+	if !card.IsValid(fromNumber) {
+		return 0, TransferError("Ошибка: некорректный номер карты-источника!")
+	}
+
+	if !card.IsValid(toNumber) {
+		return 0, TransferError("Ошибка: некорректный номер карты-получателя!")
 	}
 
 	//Определяем по номерам чьи карты
-	cardFrom := s.CardSvc.SearchByNumber(fromNumber)
-	cardTo := s.CardSvc.SearchByNumber(toNumber)
+	cardFrom, ourFrom, errFrom := s.CardSvc.SearchByNumber(fromNumber)
+	cardTo, ourTo, errTo := s.CardSvc.SearchByNumber(toNumber)
 
+	if errFrom != nil {
+
+		return 0, TransferError("Ошибка по карте-источнику - " + errFrom.Error())
+	}
+
+	if errTo != nil {
+		return 0, TransferError("Ошибка по карте-получателю - " + errTo.Error())
+	}
 
 	//-----------------------------Блок, если обе карты "наши"---------------------------------
-	if (cardFrom != nil) && (cardTo != nil) {
+	if (ourFrom == true) && (ourTo == true) {
 
 		totalSum = amount + s.FeeCalculation("in-to-in", amount) //Полная сумма списания с карты-источника
 
 		if totalSum > cardFrom.Balance {
-			fmt.Printf("На карте %s недостаточно средств для перевода! \n", fromNumber)
-			ok = false
-			return
+			return totalSum, TransferError("Ошибка: на карте-источнике недостаточно средтв для перевода!")
 		}
 
 		cardFrom.Balance -= totalSum //Списание с карты источника суммы перевода  + комиссия
 		cardTo.Balance += amount //Зачисление на карту-получатель суммы перевода (без комиссии)
 
 		fmt.Println("Тип перевода - внутрибанковский платеж")
-		ok = true
 	}
 
 
 	//-------------------------Блок, если с "нашей" карты на внешнюю карту---------------------
-	if (cardFrom !=nil ) && (cardTo == nil) {
+	if (ourFrom == true ) && (ourTo == false) {
 
 		totalSum = amount + s.FeeCalculation("in-to-out", amount) //Полная сумма списания с карты-источника
 
 		if totalSum > cardFrom.Balance {
-			fmt.Printf("На карте %s недостаточно средств для перевода! \n", fromNumber)
-			ok = false
-			return
+			return totalSum, TransferError("Ошибка: на карте-источнике недостаточно средтв для перевода!")
 		}
 
 		cardFrom.Balance -= totalSum //Списание с карты источника суммы перевода  + комиссия
-
 		fmt.Println("Тип перевода - с карты банка на внешнюю карту")
-		ok = true
 	}
 
 
 	//------------------------Блок, если с внешней карты на карту банка------------------------
-	if (cardFrom == nil) && (cardTo != nil) {
+	if (ourFrom == false) && (ourTo == true) {
 
 		totalSum = amount + s.FeeCalculation("out-to-in", amount) //Полная сумма списания с карты-источника
 
@@ -103,17 +118,15 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 		cardTo.Balance += amount //Зачисление на карту-получатель суммы перевода (без комиссии)
 
 		fmt.Println("Тип перевода - с внешней карты на карту банка")
-		ok = true
 	}
 
 	//------------------------Блок, если с внешней карты на внешнюю банка---------------------
-	if (cardFrom == nil) && (cardTo == nil) {
+	if (ourFrom == false) && (ourTo == false) {
 
 		totalSum = amount + s.FeeCalculation("out-to-out", amount) //Полная сумма списания с карты-источника
 
 		fmt.Println("Тип перевода - с внешней карты на внешнюю карту")
-		ok = true
 	}
 
-	return totalSum, ok
+	return totalSum, nil
 }
