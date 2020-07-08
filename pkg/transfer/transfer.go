@@ -58,6 +58,14 @@ func (s *Service) Card2Card(fromNumber, toNumber string, amount int64) (totalSum
 		return 0, TransferError("Ошибка: сумма перевода отрицательна либо равна нулю!")
 	}
 
+	if !card.IsValid(fromNumber) {
+		return 0, TransferError("Ошибка: некорректный номер карты-источника!")
+	}
+
+	if !card.IsValid(toNumber) {
+		return 0, TransferError("Ошибка: некорректный номер карты-получателя!")
+	}
+
 	//Определяем по номерам чьи карты
 	cardFrom, ourFrom, errFrom := s.CardSvc.SearchByNumber(fromNumber)
 	cardTo, ourTo, errTo := s.CardSvc.SearchByNumber(toNumber)
